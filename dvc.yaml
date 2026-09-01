@@ -1,0 +1,49 @@
+stages:  #to define the stages of the pipeline
+  data_ingestion:  #the first stage of the pipeline is data ingestion
+    cmd: python src/data_ingestion.py   #the command to run the data ingestion script
+    deps:  #the dependencies for this stage are the data ingestion script
+    - src/data_ingestion.py
+    #params: #the parameters for this stage are the test size for the data ingestion
+    #- data_ingestion.test_size
+    outs:  #the outputs for this stage are the raw data that is ingested
+    - data/raw
+  data_preprocessing:  #the second stage of the pipeline is data preprocessing
+    cmd: python src/data_preprocessing.py  #the command to run the data preprocessing script
+    deps: #the dependencies for this stage are the raw data and the data preprocessing script
+    - data/raw
+    - src/data_preprocessing.py
+    outs:
+    - data/interim
+  feature_engineering:
+    cmd: python src/feature_engineering.py
+    deps:
+    - data/interim
+    - src/feature_engineering.py
+    #params:
+    #- feature_engineering.max_features
+    outs:
+    - data/processed
+  model_building:
+    cmd: python src/model_building.py
+    deps:
+    - data/processed
+    - src/model_building.py
+    #params:
+    #- model_building.n_estimators
+    #- model_building.random_state
+    outs:
+    - models/model.pkl
+  model_evaluation:
+    cmd: python src/model_evaluation.py
+    deps:
+    - models/model.pkl
+    - src/model_evaluation.py
+    metrics:
+    - reports/metrics.json
+#params:
+#- dvclive/params.yaml
+#metrics:
+#- dvclive/metrics.json
+#plots:
+#- dvclive/plots/metrics:
+#    x: step
